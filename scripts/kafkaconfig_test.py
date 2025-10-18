@@ -13,12 +13,11 @@ TEST_BOOTSTRAP_SERVERS = os.getenv('TEST_BOOTSTRAP_SERVERS')
 TEST_CONFIG_LOG_FILE_PATH = os.getenv('TEST_CONFIG_LOG_FILE_PATH')
 TEST_CLIENT_ID = os.getenv('TEST_CLIENT_ID')
 TOPIC = os.getenv('TEST_TOPIC')
-TEST_NUM_PARTITIONS = os.getenv('TEST_NUM_PARTITIONS')
+TEST_NUM_PARTITIONS = int(os.getenv('TEST_NUM_PARTITIONS'))
 TOPIC = os.getenv('TEST_TOPIC')
-TEST_REPLICATION_FACTOR = os.getenv('TEST_REPLICATION_FACTOR')
+TEST_REPLICATION_FACTOR = int(os.getenv('TEST_REPLICATION_FACTOR'))
 TEST_CLEANUP_POLICY = os.getenv('TEST_CLEANUP_POLICY')
 TEST_RETENTION_MS = os.getenv('TEST_RETENTION_MS')
-
 
 # setup logging
 logging.basicConfig(
@@ -36,6 +35,7 @@ admin_client = KafkaAdminClient(
     bootstrap_servers=TEST_BOOTSTRAP_SERVERS,
     client_id=TEST_CLIENT_ID
 )
+
 
 
 # define topics
@@ -60,3 +60,7 @@ try:
 except Exception as e:
     logging.info(f"Topic creation failed: {e}")
     print(f"Topic creation failed: {e}")
+finally:
+    admin_client.close()
+    logging.info(f"Closed admin client connection to '{TEST_BOOTSTRAP_SERVERS}'")
+    print(f"Closed admin client connection to '{TEST_BOOTSTRAP_SERVERS}'")

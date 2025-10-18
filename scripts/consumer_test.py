@@ -1,21 +1,39 @@
 import json
 import logging
+import os
+import sys
+from dotenv import load_dotenv
 from kafka import KafkaConsumer
 
 
+# load environment
+load_dotenv("../.env")
+
 # configs
-BOOTSTRAP_SERVERS = 'localhost:9092'
-TOPIC = 'test-topic'
-GROUP_ID = 'test-group'
-AUTO_OFFSET_RESET = 'earliest'
+TEST_BOOTSTRAP_SERVERS = os.getenv('TEST_BOOTSTRAP_SERVERS')
+TOPIC = os.getenv('TEST_TOPIC')
+TEST_AUTO_OFFSET_RESET = os.getenv('TEST_AUTO_OFFSET_RESET')
+TEST_GROUP_ID = os.getenv('TEST_GROUP_ID')
+TEST_CONSUMER_LOG_FILE_PATH = os.getenv('TEST_CONSUMER_LOG_FILE_PATH')
+
+# setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler(TEST_CONSUMER_LOG_FILE_PATH),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+
 
 # kafka consumer setup
 consumer = KafkaConsumer(
     TOPIC,
-    bootstrap_servers=BOOTSTRAP_SERVERS,
-    auto_offset_reset=AUTO_OFFSET_RESET,
+    bootstrap_servers=TEST_BOOTSTRAP_SERVERS,
+    auto_offset_reset=TEST_AUTO_OFFSET_RESET,
     enable_auto_commit=True,
-    group_id=GROUP_ID,
+    group_id=TEST_GROUP_ID,
     value_deserializer=lambda m: json.loads(m.decode('utf-8'))
 )
 
