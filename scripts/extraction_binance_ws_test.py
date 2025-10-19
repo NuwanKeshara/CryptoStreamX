@@ -1,18 +1,21 @@
 import json
 import signal
 import sys
+from dotenv import load_dotenv
 from kafka import KafkaProducer
 from websocket import WebSocketApp
 
-# === CONFIG ===
+# load environment
+load_dotenv("../.env")
+
+# config
 BINANCE_WS_URL = "wss://stream.binance.com:9443/ws/btcusdt@trade"
 KAFKA_BROKERS = "host.docker.internal:9092"
 KAFKA_TOPIC = "btcusdt_trades"
-
-# === GLOBAL STATE ===
 ws_app = None
 
-# === KAFKA PRODUCER ===
+
+# kafka producer
 producer = KafkaProducer(
     bootstrap_servers=KAFKA_BROKERS,
     value_serializer=lambda v: json.dumps(v).encode("utf-8"),
@@ -32,7 +35,7 @@ def send_to_kafka(msg):
         print(f"[ERROR] Kafka send failed: {e}")
 
 
-# === BINANCE CALLBACKS ===
+# websocket event handlers
 def on_message(ws, message):
     try:
         data = json.loads(message)
@@ -53,7 +56,7 @@ def on_open(ws):
     print("[INFO] Connected to Binance WebSocket")
 
 
-# === GRACEFUL SHUTDOWN ===
+# graceful shutdown
 def signal_handler(sig, frame):
     print("\n[INFO] Shutting down gracefully...")
     if ws_app:
@@ -67,7 +70,8 @@ signal.signal(signal.SIGTERM, signal_handler)
 
 
 
-# === MAIN ===
+
+
 def main():
     global ws_app
     ws_app = WebSocketApp(
