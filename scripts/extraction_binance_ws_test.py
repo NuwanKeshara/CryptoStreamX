@@ -1,4 +1,5 @@
 import json
+import os
 import signal
 import sys
 from dotenv import load_dotenv
@@ -9,8 +10,8 @@ from websocket import WebSocketApp
 load_dotenv("../.env")
 
 # config
-BINANCE_WS_URL = "wss://stream.binance.com:9443/ws/btcusdt@trade"
-KAFKA_BROKERS = "host.docker.internal:9092"
+BINANCE_WS_URL = os.getenv('BINANCE_WS_URL')
+KAFKA_BROKERS = os.getenv('TEST_BOOTSTRAP_SERVERS')
 KAFKA_TOPIC = "btcusdt_trades"
 ws_app = None
 
@@ -32,7 +33,7 @@ def send_to_kafka(msg):
         )
         producer.flush()
     except Exception as e:
-        print(f"[ERROR] Kafka send failed: {e}")
+        print(f"Kafka send failed: {e}")
 
 
 # websocket event handlers
@@ -41,24 +42,24 @@ def on_message(ws, message):
         data = json.loads(message)
         send_to_kafka(data)
     except Exception as e:
-        print(f"[ERROR] Failed to process message: {e}")
+        print(f"Failed to process message: {e}")
 
 
 def on_error(ws, error):
-    print(f"[ERROR] WebSocket error: {error}")
+    print(f"WebSocket error: {error}")
 
 
 def on_close(ws, close_status_code, close_msg):
-    print(f"[INFO] WebSocket closed. Code={close_status_code}, Msg={close_msg}")
+    print(f"WebSocket closed. Code={close_status_code}, Msg={close_msg}")
 
 
 def on_open(ws):
-    print("[INFO] Connected to Binance WebSocket")
+    print("Connected to Binance WebSocket")
 
 
 # graceful shutdown
 def signal_handler(sig, frame):
-    print("\n[INFO] Shutting down gracefully...")
+    print("Shutting down gracefully...")
     if ws_app:
         ws_app.close()
     producer.close()
@@ -81,7 +82,7 @@ def main():
         on_close=on_close,
         on_open=on_open
     )
-    print("[INFO] Starting WebSocket listener...")
+    print("Starting WebSocket listener...")
     ws_app.run_forever(ping_interval=15, ping_timeout=10)
 
 if __name__ == "__main__":
