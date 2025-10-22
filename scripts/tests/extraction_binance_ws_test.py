@@ -11,14 +11,14 @@ load_dotenv("../.env")
 
 # config
 BINANCE_WS_URL = os.getenv('BINANCE_WS_URL')
-KAFKA_BROKERS = os.getenv('TEST_BOOTSTRAP_SERVERS')
-KAFKA_TOPIC = "btcusdt_trades"
+BOOTSTRAP_SERVERS = os.getenv('BOOTSTRAP_SERVERS')
+TOPIC = os.getenv('TOPIC')
 ws_app = None
 
 
 # kafka producer
 producer = KafkaProducer(
-    bootstrap_servers=KAFKA_BROKERS,
+    bootstrap_servers=BOOTSTRAP_SERVERS,
     value_serializer=lambda v: json.dumps(v).encode("utf-8"),
     key_serializer=lambda v: v.encode("utf-8")
 )
@@ -27,7 +27,7 @@ producer = KafkaProducer(
 def send_to_kafka(msg):
     try:
         producer.send(
-            KAFKA_TOPIC,
+            TOPIC,
             key="BTCUSDT",
             value=msg
         )
