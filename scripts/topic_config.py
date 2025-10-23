@@ -23,7 +23,9 @@ try:
     # config variables
     BOOTSTRAP_SERVERS = os.getenv('BOOTSTRAP_SERVERS')
     CLIENT_ID = os.getenv('CLIENT_ID')
-    TOPIC = os.getenv('TOPIC')
+    TOPIC1 = os.getenv('TOPIC1')
+    TOPIC2 = os.getenv('TOPIC2')
+    TOPIC3 = os.getenv('TOPIC3')
     NUM_PARTITIONS = int(os.getenv('NUM_PARTITIONS'))
     REPLICATION_FACTOR = int(os.getenv('REPLICATION_FACTOR'))
     CLEANUP_POLICY = os.getenv('CLEANUP_POLICY')
@@ -38,7 +40,6 @@ else:
 
 
 try:
-    
     # initialize a admin client session
     admin_client = KafkaAdminClient(
         bootstrap_servers=BOOTSTRAP_SERVERS,
@@ -57,7 +58,25 @@ else:
     # define topic settings
     topic_list = [
         NewTopic(
-        name=TOPIC,
+        name=TOPIC1,
+        num_partitions=NUM_PARTITIONS,
+        replication_factor=REPLICATION_FACTOR,
+        topic_configs={
+            'cleanup.policy': CLEANUP_POLICY,
+            'retention.ms': RETENTION_MS
+        }
+    ),
+        NewTopic(
+        name=TOPIC2,
+        num_partitions=NUM_PARTITIONS,
+        replication_factor=REPLICATION_FACTOR,
+        topic_configs={
+            'cleanup.policy': CLEANUP_POLICY,
+            'retention.ms': RETENTION_MS
+        }
+    ),
+        NewTopic(
+        name=TOPIC3,
         num_partitions=NUM_PARTITIONS,
         replication_factor=REPLICATION_FACTOR,
         topic_configs={
@@ -66,6 +85,7 @@ else:
         }
     )
     ]
+
 
 
 # create topic
