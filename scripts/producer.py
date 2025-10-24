@@ -7,11 +7,12 @@ from kafka import KafkaProducer
 from websocket import WebSocketApp
 
 # load environment
-load_dotenv("../.env")
+load_dotenv("./.env")
 
 # config
 BINANCE_WS_URL = os.getenv('BINANCE_WS_URL')
 BOOTSTRAP_SERVERS = os.getenv('BOOTSTRAP_SERVERS')
+TOPIC = os.getenv('TOPIC')
 TOPIC1 = os.getenv('TOPIC1')
 TOPIC2 = os.getenv('TOPIC2')
 TOPIC3 = os.getenv('TOPIC3')
@@ -29,7 +30,7 @@ producer = KafkaProducer(
 def send_to_kafka(msg):
     try:
         producer.send(
-            TOPIC1,
+            TOPIC,
             key="BTCUSDT",
             value=msg
         )
