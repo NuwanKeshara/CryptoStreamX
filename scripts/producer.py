@@ -74,8 +74,6 @@ signal.signal(signal.SIGTERM, signal_handler)
 
 
 
-
-
 def main():
     global ws_app
     ws_app = WebSocketApp(
