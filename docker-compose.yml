@@ -1,4 +1,3 @@
-version: "3.9"
 
 networks:
   app-tier:
@@ -73,7 +72,7 @@ services:
 
 
   ksqldb-server:
-    image: confluentinc/ksqldb-server:latest
+    image: confluentinc/ksqldb-server:0.28.2
     container_name: ksqldb-server
     hostname: ksqldb-server
     networks:
@@ -83,29 +82,29 @@ services:
     environment:
       KSQL_LISTENERS: "http://0.0.0.0:8088"
       KSQL_BOOTSTRAP_SERVERS: "kafka-0:9093,kafka-1:9093,kafka-2:9093"
-      # KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
       KSQL_KSQL_STREAMS_AUTO_OFFSET_RESET: "latest"
       KSQL_KSQL_SERVICE_ID: "crypto_ksqldb"
       KSQL_KSQL_STREAMS_STATE_DIR: "/tmp/ksqldb-state"
 
-      KSQL_CONNECT_URL: "http://kafka-connect:8083"
+      KSQL_KSQL_CONNECT_URL: "http://kafka-connect:8083"
       KSQL_KSQL_CONNECT_REST_ADVERTISED_HOST_NAME: "ksqldb-server"
       # KSQL_KSQL_CONNECT_USER: ""
       # KSQL_KSQL_CONNECT_PASSWORD: ""
-
+    command: "ksql-server-start /etc/ksqldb-server/ksql-server.properties"
     volumes:
       - ./ksqldb/state:/tmp/ksqldb-state
+      - ./ksqldb/ksql-server.properties:/etc/ksqldb-server/ksql-server.properties
+
     depends_on:
       - kafka-0
       - kafka-1
       - kafka-2
-      # - schema-registry
 
   
   ksqldb-cli:
-    image: confluentinc/ksqldb-cli:latest
+    image: confluentinc/ksqldb-cli:0.28.2
     container_name: ksqldb-cli
     networks:
       - app-tier
@@ -115,31 +114,6 @@ services:
       - ksqldb-server
     volumes:
       - ./ksqldb/sql:/etc/sql
-  
-
-  # schema-registry:
-  #   image: confluentinc/cp-schema-registry:6.0.0
-  #   container_name: schema-registry
-  #   networks:
-  #     - app-tier
-  #   ports:
-  #     - '8081:8081'
-  #   depends_on:
-  #     - zookeeper
-  #     - kafka-0
-  #     - kafka-1
-  #     - kafka-2
-  #   environment:
-  #     # SCHEMA_REGISTRY_HOST_NAME: schema-registry
-  #     # SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
-  #     # SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
-  #     # # SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
-  #     # SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: INTERNAL
-  #     SCHEMA_REGISTRY_HOST_NAME: schema-registry
-  #     SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
-  #     SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
-  #     SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka-0:9092,PLAINTEXT://kafka-1:9092,PLAINTEXT://kafka-2:9092"
-  #     SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
 
 
   kafka-ui:
@@ -189,7 +163,9 @@ services:
     environment:
       CONNECT_BOOTSTRAP_SERVERS: "kafka-0:9093,kafka-1:9093,kafka-2:9093"
       CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
-      CONNECT_GROUP_ID: "connect-cluster"
+      CONNECT_REST_PORT: 8083
+      CONNECT_REST_HOST_NAME: 0.0.0.0
+      CONNECT_GROUP_ID: "cryptostreamx-kafka-cluster"
       CONNECT_CONFIG_STORAGE_TOPIC: "connect-configs"
       CONNECT_OFFSET_STORAGE_TOPIC: "connect-offsets"
       CONNECT_STATUS_STORAGE_TOPIC: "connect-status"
@@ -210,4 +186,3 @@ services:
       - kafka-0
       - kafka-1
       - kafka-2
-      # - schema-registry

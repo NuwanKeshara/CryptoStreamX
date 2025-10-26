@@ -2,3 +2,4 @@
 .venv/
 logs/
 clickhouse/data
+ksqldb/ksql-server.properties
