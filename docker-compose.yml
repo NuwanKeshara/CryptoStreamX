@@ -74,51 +74,72 @@ services:
 
   ksqldb-server:
     image: confluentinc/ksqldb-server:latest
-    hostname: ksqldb-server
     container_name: ksqldb-server
+    hostname: ksqldb-server
     networks:
       - app-tier
     ports:
       - "8088:8088"
-    command: ["/etc/ksqldb-server/run.sh"]
+    environment:
+      KSQL_LISTENERS: "http://0.0.0.0:8088"
+      KSQL_BOOTSTRAP_SERVERS: "kafka-0:9093,kafka-1:9093,kafka-2:9093"
+      # KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+      KSQL_KSQL_STREAMS_AUTO_OFFSET_RESET: "latest"
+      KSQL_KSQL_SERVICE_ID: "crypto_ksqldb"
+      KSQL_KSQL_STREAMS_STATE_DIR: "/tmp/ksqldb-state"
+
+      KSQL_CONNECT_URL: "http://kafka-connect:8083"
+      KSQL_KSQL_CONNECT_REST_ADVERTISED_HOST_NAME: "ksqldb-server"
+      # KSQL_KSQL_CONNECT_USER: ""
+      # KSQL_KSQL_CONNECT_PASSWORD: ""
+
+    volumes:
+      - ./ksqldb/state:/tmp/ksqldb-state
     depends_on:
       - kafka-0
       - kafka-1
       - kafka-2
-    volumes:
-      - ./ksqldb-server:/etc/ksqldb-server
+      # - schema-registry
 
   
   ksqldb-cli:
     image: confluentinc/ksqldb-cli:latest
     container_name: ksqldb-cli
-    depends_on:
-      - kafka-0
-      - kafka-1
-      - kafka-2
-      - ksqldb-server
-    entrypoint: /bin/sh
-    tty: true
-    volumes:
-      - ./ksqldb-cli:/etc/sql
-  
-
-  schema-registry:
-    image: confluentinc/cp-schema-registry:latest
-    container_name: schema-registry
     networks:
       - app-tier
-    ports:
-      - '8081:8081'
+    entrypoint: /bin/sh
+    tty: true
     depends_on:
-      - zookeeper
-      - kafka-0
-      - kafka-1
-      - kafka-2
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
+      - ksqldb-server
+    volumes:
+      - ./ksqldb/sql:/etc/sql
+  
+
+  # schema-registry:
+  #   image: confluentinc/cp-schema-registry:6.0.0
+  #   container_name: schema-registry
+  #   networks:
+  #     - app-tier
+  #   ports:
+  #     - '8081:8081'
+  #   depends_on:
+  #     - zookeeper
+  #     - kafka-0
+  #     - kafka-1
+  #     - kafka-2
+  #   environment:
+  #     # SCHEMA_REGISTRY_HOST_NAME: schema-registry
+  #     # SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+  #     # SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
+  #     # # SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
+  #     # SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: INTERNAL
+  #     SCHEMA_REGISTRY_HOST_NAME: schema-registry
+  #     SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+  #     SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
+  #     SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka-0:9092,PLAINTEXT://kafka-1:9092,PLAINTEXT://kafka-2:9092"
+  #     SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
 
 
   kafka-ui:
@@ -156,3 +177,37 @@ services:
       - ./clickhouse/init:/docker-entrypoint-initdb.d
     environment:
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+
+  
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:7.9.4
+    container_name: kafka-connect
+    networks:
+      - app-tier
+    ports:
+      - "8083:8083"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: "kafka-0:9093,kafka-1:9093,kafka-2:9093"
+      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
+      CONNECT_GROUP_ID: "connect-cluster"
+      CONNECT_CONFIG_STORAGE_TOPIC: "connect-configs"
+      CONNECT_OFFSET_STORAGE_TOPIC: "connect-offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "connect-status"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "2"
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "2"
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "2"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/etc/kafka-connect/jars"
+    volumes:
+      - ./kafka-connectors/jars:/etc/kafka-connect/jars
+      # - ./kafka-connectors/connect-distributed.properties:/etc/kafka-connect/connect-distributed.properties
+    depends_on:
+      - kafka-0
+      - kafka-1
+      - kafka-2
+      # - schema-registry
