@@ -4,14 +4,27 @@
     "connector.class": "com.clickhouse.kafka.connect.ClickHouseSinkConnector",
     "tasks.max": "1",
     "topics": "binance.test",
-    "hostname": "localhost",
-    "port": "8123",
-    "database": "default",
+
+    "hostname": "clickhouse",            
+    "port": "8123",                       
+    "database": "crypto",
     "username": "default",
     "password": "root",
-    "ssl": "false",
+
+    "table.name.format": "binance_test",   
+    "insert.mode": "insert",
     "auto.create.tables": "true",
+    "auto.evolve": "true",
+
+    "errors.tolerance": "all",
+    "errors.deadletterqueue.topic.name": "dlq-clickhouse",
+    "errors.deadletterqueue.context.headers.enable": "true",
+    "errors.log.enable": "true",
+    "errors.log.include.messages": "true",
+
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "value.converter.schemas.enable": "false"
+    "key.converter.schemas.enable": "true",
+    "value.converter.schemas.enable": "true"
   }
 }

@@ -51,3 +51,18 @@
 --     raw String
 -- ) ENGINE = MergeTree()
 -- ORDER BY tuple();
+CREATE DATABASE IF NOT EXISTS crypto;
+
+CREATE TABLE IF NOT EXISTS crypto."binance.test" (
+    event_type String,
+    event_time UInt64,
+    symbol String,
+    trade_id UInt32,
+    price Float32,
+    quantity Float32,
+    trade_time UInt64,
+    market_maker Bool,
+    ignore Bool
+)
+ENGINE = MergeTree()
+ORDER BY (symbol, trade_id);

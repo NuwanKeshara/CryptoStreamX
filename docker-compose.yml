@@ -90,11 +90,8 @@ services:
 
       KSQL_KSQL_CONNECT_URL: "http://kafka-connect:8083"
       KSQL_KSQL_CONNECT_REST_ADVERTISED_HOST_NAME: "ksqldb-server"
-    # command: "ksql-server-start /etc/ksqldb-server/ksql-server.properties"
     volumes:
       - ./ksqldb/state:/tmp/ksqldb-state
-      # - ./ksqldb/sql/init.sql:/etc/ksqldb/init.sql
-      # - ./ksqldb/ksql-server.properties:/etc/ksqldb-server/ksql-server.properties
 
     depends_on:
       - kafka-0
@@ -123,8 +120,6 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
-    # env_file:
-    #   - .env
     environment:
       DYNAMIC_CONFIG_ENABLED: "true"
       KAFKA_CLUSTERS_0_NAME: cryptostreamx-kafka-cluster
@@ -148,10 +143,10 @@ services:
       - "9000:9000"
     restart: unless-stopped
     volumes:
-      - ./clickhouse/data:/var/lib/clickhouse
       - ./clickhouse/init:/docker-entrypoint-initdb.d
     environment:
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+      CLICKHOUSE_DB: crypto
 
   
   kafka-connect:

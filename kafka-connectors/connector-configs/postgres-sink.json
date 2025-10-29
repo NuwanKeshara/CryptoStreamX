@@ -18,13 +18,7 @@
 
     "key.converter": "org.apache.kafka.connect.json.JsonConverter",
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "key.converter.schemas.enable": "false",
-    "value.converter.schemas.enable": "false",
-
-    "transforms": "unwrap,flatten",
-    "transforms.unwrap.type": "org.apache.kafka.connect.transforms.ExtractField$Value",
-    "transforms.unwrap.field": "data",
-    "transforms.flatten.type": "org.apache.kafka.connect.transforms.Flatten$Value",
-    "transforms.flatten.delimiter": "_"
+    "key.converter.schemas.enable": "true",
+    "value.converter.schemas.enable": "true"
   }
 }
