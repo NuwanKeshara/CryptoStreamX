@@ -90,12 +90,11 @@ services:
 
       KSQL_KSQL_CONNECT_URL: "http://kafka-connect:8083"
       KSQL_KSQL_CONNECT_REST_ADVERTISED_HOST_NAME: "ksqldb-server"
-      # KSQL_KSQL_CONNECT_USER: ""
-      # KSQL_KSQL_CONNECT_PASSWORD: ""
-    command: "ksql-server-start /etc/ksqldb-server/ksql-server.properties"
+    # command: "ksql-server-start /etc/ksqldb-server/ksql-server.properties"
     volumes:
       - ./ksqldb/state:/tmp/ksqldb-state
-      - ./ksqldb/ksql-server.properties:/etc/ksqldb-server/ksql-server.properties
+      # - ./ksqldb/sql/init.sql:/etc/ksqldb/init.sql
+      # - ./ksqldb/ksql-server.properties:/etc/ksqldb-server/ksql-server.properties
 
     depends_on:
       - kafka-0
@@ -124,6 +123,8 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+    # env_file:
+    #   - .env
     environment:
       DYNAMIC_CONFIG_ENABLED: "true"
       KAFKA_CLUSTERS_0_NAME: cryptostreamx-kafka-cluster
@@ -166,22 +167,35 @@ services:
       CONNECT_REST_PORT: 8083
       CONNECT_REST_HOST_NAME: 0.0.0.0
       CONNECT_GROUP_ID: "cryptostreamx-kafka-cluster"
-      CONNECT_CONFIG_STORAGE_TOPIC: "connect-configs"
-      CONNECT_OFFSET_STORAGE_TOPIC: "connect-offsets"
-      CONNECT_STATUS_STORAGE_TOPIC: "connect-status"
+      CONNECT_CONFIG_STORAGE_TOPIC: "_connect-configs"
+      CONNECT_OFFSET_STORAGE_TOPIC: "_connect-offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "_connect-status"
       CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
-      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "2"
-      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "2"
-      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "2"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_PLUGIN_PATH: "/usr/share/java,/etc/kafka-connect/jars"
     volumes:
       - ./kafka-connectors/jars:/etc/kafka-connect/jars
-      # - ./kafka-connectors/connect-distributed.properties:/etc/kafka-connect/connect-distributed.properties
+      - ./kafka-connectors/connector-configs:/mnt/configs
+    depends_on:
+      - kafka-0
+      - kafka-1
+      - kafka-2
+
+  postgres:
+    image: 'postgres:16.2-alpine'
+    container_name: postgresdb
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: crypto
+    ports:
+      - 5434:5432
+    networks:
+      - app-tier
     depends_on:
       - kafka-0
       - kafka-1

@@ -1,0 +1,17 @@
+{
+  "name": "clickhouse-sink1",
+  "config": {
+    "connector.class": "com.clickhouse.kafka.connect.ClickHouseSinkConnector",
+    "tasks.max": "1",
+    "topics": "binance.test",
+    "hostname": "localhost",
+    "port": "8123",
+    "database": "default",
+    "username": "default",
+    "password": "root",
+    "ssl": "false",
+    "auto.create.tables": "true",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false"
+  }
+}

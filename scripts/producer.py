@@ -22,8 +22,7 @@ ws_app = None
 # kafka producer
 producer = KafkaProducer(
     bootstrap_servers=BOOTSTRAP_SERVERS,
-    value_serializer=lambda v: json.dumps(v).encode("utf-8"),
-    key_serializer=lambda v: v.encode("utf-8")
+    value_serializer=lambda v: json.dumps(v).encode("utf-8")
 )
 
 
@@ -31,7 +30,6 @@ def send_to_kafka(msg):
     try:
         producer.send(
             TOPIC,
-            key="BTCUSDT",
             value=msg
         )
         producer.flush()
