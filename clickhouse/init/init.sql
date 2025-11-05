@@ -1,7 +1,9 @@
 
 CREATE DATABASE IF NOT EXISTS crypto;
+USE crypto;
 
-CREATE TABLE IF NOT EXISTS crypto."binance_test" (
+CREATE TABLE IF NOT EXISTS binance_test 
+(
     event_type String,
     event_time UInt64,
     symbol String,
