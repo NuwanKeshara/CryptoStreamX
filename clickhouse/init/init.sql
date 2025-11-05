@@ -53,7 +53,7 @@
 -- ORDER BY tuple();
 CREATE DATABASE IF NOT EXISTS crypto;
 
-CREATE TABLE IF NOT EXISTS crypto."binance.test" (
+CREATE TABLE IF NOT EXISTS crypto."test" (
     event_type String,
     event_time UInt64,
     symbol String,

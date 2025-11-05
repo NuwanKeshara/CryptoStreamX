@@ -12,7 +12,7 @@ BINANCE_WS_URL = os.getenv('BINANCE_WS_URL')
 BOOTSTRAP_SERVERS = os.getenv('BOOTSTRAP_SERVERS')
 TOPIC = os.getenv('TOPIC')
 
-# Schema dict reused globally for speed
+# Schema dict
 SCHEMA = {
     "type": "struct",
     "fields": [
@@ -62,7 +62,7 @@ def make_connect_record(payload):
 def send_to_kafka(msg):
     record = make_connect_record(msg)
     if record is None:
-        return  # skip
+        return
     producer.send(TOPIC, value=record)
 
 def on_message(ws, message):

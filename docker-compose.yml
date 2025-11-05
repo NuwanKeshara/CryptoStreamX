@@ -180,18 +180,18 @@ services:
       - kafka-1
       - kafka-2
 
-  postgres:
-    image: 'postgres:16.2-alpine'
-    container_name: postgresdb
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: crypto
-    ports:
-      - 5434:5432
-    networks:
-      - app-tier
-    depends_on:
-      - kafka-0
-      - kafka-1
-      - kafka-2
+  # postgres:
+  #   image: 'postgres:16.2-alpine'
+  #   container_name: postgresdb
+  #   environment:
+  #     POSTGRES_USER: root
+  #     POSTGRES_PASSWORD: root
+  #     POSTGRES_DB: crypto
+  #   ports:
+  #     - 5434:5432
+  #   networks:
+  #     - app-tier
+  #   depends_on:
+  #     - kafka-0
+  #     - kafka-1
+  #     - kafka-2

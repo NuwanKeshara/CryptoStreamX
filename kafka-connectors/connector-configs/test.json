@@ -1,20 +1,21 @@
 {
-  "name": "clickhouse-sink2",
+  "name": "clickhouse-sink1",
   "config": {
     "connector.class": "com.clickhouse.kafka.connect.ClickHouseSinkConnector",
     "tasks.max": "1",
-    "topics": "binance.test",
 
-    "hostname": "clickhouse",            
-    "port": "8123",                       
+    "topics.regex": "binance\\.test",
+    "table.name.format": "test",
+
+    "hostname": "clickhouse",
+    "port": "8123",
     "database": "crypto",
     "username": "default",
     "password": "root",
 
-    "table.name.format": "binance_test",
     "insert.mode": "insert",
-    "auto.create.tables": "true",
-    "auto.evolve": "true",
+    "auto.create.tables": "false",
+    "auto.evolve": "false",
 
     "errors.tolerance": "all",
     "errors.deadletterqueue.topic.name": "dlq-clickhouse",
