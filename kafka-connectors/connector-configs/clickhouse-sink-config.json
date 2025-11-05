@@ -3,7 +3,10 @@
   "config": {
     "connector.class": "com.clickhouse.kafka.connect.ClickHouseSinkConnector",
     "tasks.max": "1",
-    "topics": "binance_test",
+    "topics": "binance_test,binance_trade_agg_1m,binance_trade_agg_5m",
+    "batch.size": "1000",
+    "linger.ms": "5000",   
+    "max.retries": "3",
 
     "hostname": "clickhouse",            
     "port": "8123",                       
@@ -11,6 +14,7 @@
     "username": "default",
     "password": "root",
 
+    "topic2TableMap": "binance_test:binance_test,binance_trade_agg_1m:binance_trade_agg_1m,binance_trade_agg_5m:binance_trade_agg_5m",
     "insert.mode": "insert",
     "auto.create.tables": "true",
     "auto.evolve": "true",

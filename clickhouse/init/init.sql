@@ -1,56 +1,4 @@
--- CREATE DATABASE IF NOT EXISTS crypto;
--- USE crypto;
 
-
--- CREATE TABLE btcusdt_trade_agg_1 (
---     id UInt64 DEFAULT rowNumberInAllBlocks(),
---     symbol String,
---     window_start DateTime,
---     window_end DateTime,
---     total_volume Float64,
---     trade_count UInt64,
---     insert_time DateTime DEFAULT now()
--- )
--- ENGINE = MergeTree()
--- ORDER BY (id);
-
-
--- CREATE TABLE btcusdt_trade_agg_2 (
---   id UInt64 DEFAULT rowNumberInAllBlocks(),
---   symbol String,
---   avg_price Float64,
---   total_qty Float64,
---   trade_count UInt64,
---   window_start DateTime64(3),
---   window_end DateTime64(3),
---   insert_time DateTime DEFAULT now()
--- )
--- ENGINE = MergeTree()
--- ORDER BY (symbol, window_start);
-
-
--- CREATE TABLE IF NOT EXISTS binance_trades_raw (
---     id UInt64 DEFAULT rowNumberInAllBlocks(),
---     event_type String,
---     event_time_ms UInt64,
---     symbol String,
---     trade_id UInt64,
---     price Decimal(38,8),
---     quantity Decimal(38,8),
---     trade_time UInt64,
---     buyer_market_maker UInt8,
---     ignore_flag UInt8,
---     insert_time DateTime DEFAULT now()
--- )
--- ENGINE = MergeTree()
--- ORDER BY (symbol, event_time_ms)
--- PARTITION BY toYYYYMMDD(toDateTime(event_time_ms / 1000));
-
--- Run in ClickHouse
--- CREATE TABLE IF NOT EXISTS default.binance_raw (
---     raw String
--- ) ENGINE = MergeTree()
--- ORDER BY tuple();
 CREATE DATABASE IF NOT EXISTS crypto;
 
 CREATE TABLE IF NOT EXISTS crypto."binance_test" (
@@ -66,3 +14,37 @@ CREATE TABLE IF NOT EXISTS crypto."binance_test" (
 )
 ENGINE = MergeTree()
 ORDER BY (symbol, trade_id);
+
+
+CREATE TABLE IF NOT EXISTS binance_trade_agg_1m
+(
+    symbol String,
+    window_start DateTime64(3, 'UTC'),
+    window_end DateTime64(3, 'UTC'),
+    trade_count UInt32,
+    total_quantity Float64,
+    avg_price Float64,
+    min_price Float64,
+    max_price Float64
+)
+ENGINE = MergeTree
+PARTITION BY toDate(window_start)
+ORDER BY (symbol, window_start)
+SETTINGS index_granularity = 8192;
+
+
+CREATE TABLE IF NOT EXISTS binance_trade_agg_5m
+(
+    symbol String,
+    window_start DateTime64(3, 'UTC'),
+    window_end DateTime64(3, 'UTC'),
+    trade_count UInt32,
+    total_quantity Float64,
+    avg_price Float64,
+    min_price Float64,
+    max_price Float64
+)
+ENGINE = MergeTree
+PARTITION BY toDate(window_start)
+ORDER BY (symbol, window_start)
+SETTINGS index_granularity = 8192;
