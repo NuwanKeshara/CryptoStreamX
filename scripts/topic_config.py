@@ -66,33 +66,6 @@ else:
             'cleanup.policy': CLEANUP_POLICY,
             'retention.ms': RETENTION_MS
             }
-        ),
-        NewTopic(
-        name=TOPIC1,
-        num_partitions=NUM_PARTITIONS,
-        replication_factor=REPLICATION_FACTOR,
-        topic_configs={
-            'cleanup.policy': CLEANUP_POLICY,
-            'retention.ms': RETENTION_MS
-            }
-        ),
-        NewTopic(
-        name=TOPIC2,
-        num_partitions=NUM_PARTITIONS,
-        replication_factor=REPLICATION_FACTOR,
-        topic_configs={
-            'cleanup.policy': CLEANUP_POLICY,
-            'retention.ms': RETENTION_MS
-            }
-        ),
-        NewTopic(
-        name=TOPIC3,
-        num_partitions=NUM_PARTITIONS,
-        replication_factor=REPLICATION_FACTOR,
-        topic_configs={
-            'cleanup.policy': CLEANUP_POLICY,
-            'retention.ms': RETENTION_MS
-            }
         )
     ]
 
