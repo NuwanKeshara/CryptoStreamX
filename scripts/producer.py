@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import json
 import os
 import signal
@@ -17,12 +18,12 @@ SCHEMA = {
     "type": "struct",
     "fields": [
         {"type": "string", "optional": True, "field": "event_type"},
-        {"type": "int64", "optional": True, "field": "event_time"},
+        {"type": "string", "optional": True, "field": "event_time"},
         {"type": "string", "optional": True, "field": "symbol"},
         {"type": "int32", "optional": True, "field": "trade_id"},
         {"type": "float", "optional": True, "field": "price"},  
         {"type": "float", "optional": True, "field": "quantity"},  
-        {"type": "int64", "optional": True, "field": "trade_time"},
+        {"type": "string", "optional": True, "field": "trade_time"},
         {"type": "boolean", "optional": True, "field": "market_maker"},
         {"type": "boolean", "optional": True, "field": "ignore"}
     ],
@@ -44,19 +45,20 @@ def make_connect_record(payload):
     data = payload.get("data")
     if not data or not data.get("e") or not data.get("s"):
         return None 
+    
     return {
-        "schema": SCHEMA,
-        "payload": {
+        # "schema": SCHEMA,
+        # "payload": {
             "event_type": data["e"],
-            "event_time": int(data.get("E", 0)),
+            "event_time": int(data["E"]),
             "symbol": data["s"],
             "trade_id": int(data.get("t", 0)),
             "price": float(data.get("p", 0.0)),
             "quantity": float(data.get("q", 0.0)),
-            "trade_time": int(data.get("T", 0)),
+            "trade_time": int(data["T"]),
             "market_maker": bool(data.get("m", False)),
             "ignore": bool(data.get("M", False))
-        }
+        # }
     }
 
 def send_to_kafka(msg):

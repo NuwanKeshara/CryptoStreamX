@@ -1,9 +1,9 @@
 
-CREATE STREAM BINANCE_TRADE_STREAM (
+CREATE STREAM BINANCE_TRADE_RAW (
   event_type VARCHAR,
   event_time BIGINT,
   symbol VARCHAR,
-  trade_id INTEGER,
+  trade_id BIGINT,
   price DOUBLE,
   quantity DOUBLE,
   trade_time BIGINT,
@@ -11,14 +11,16 @@ CREATE STREAM BINANCE_TRADE_STREAM (
   ignore BOOLEAN
 ) WITH (
   KAFKA_TOPIC='binance_test',
-  VALUE_FORMAT='JSON'
+  VALUE_FORMAT='JSON',
+  TIMESTAMP='event_time'
 );
 
 
 
-CREATE TABLE binance_trade_agg_1m AS
+CREATE TABLE BINANCE_TRADE_AGG_1M
+WITH (KAFKA_TOPIC='binance_trade_agg_1m') AS
 SELECT
-  symbol,
+  'BTCUSDT' AS symbol,
   WINDOWSTART AS window_start,
   WINDOWEND AS window_end,
   COUNT(*) AS trade_count,
@@ -26,15 +28,17 @@ SELECT
   AVG(price) AS avg_price,
   MIN(price) AS min_price,
   MAX(price) AS max_price
-FROM BINANCE_TRADE_STREAM
+FROM BINANCE_TRADE_RAW
 WINDOW TUMBLING (SIZE 1 MINUTE, GRACE PERIOD 10 SECONDS)
-GROUP BY symbol;
+GROUP BY 'BTCUSDT'
+EMIT FINAL;
 
 
 
-CREATE TABLE binance_trade_agg_5m AS
+CREATE TABLE BINANCE_TRADE_AGG_5M
+WITH (KAFKA_TOPIC='binance_trade_agg_5m') AS
 SELECT
-  symbol,
+  'BTCUSDT' AS symbol,
   WINDOWSTART AS window_start,
   WINDOWEND AS window_end,
   COUNT(*) AS trade_count,
@@ -42,6 +46,7 @@ SELECT
   AVG(price) AS avg_price,
   MIN(price) AS min_price,
   MAX(price) AS max_price
-FROM BINANCE_TRADE_STREAM
-WINDOW TUMBLING (SIZE 5 MINUTES, GRACE PERIOD 10 SECONDS)
-GROUP BY symbol;
+FROM BINANCE_TRADE_RAW
+WINDOW TUMBLING (SIZE 5 MINUTE, GRACE PERIOD 10 SECONDS)
+GROUP BY 'BTCUSDT'
+EMIT FINAL;

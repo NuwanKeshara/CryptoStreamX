@@ -90,8 +90,8 @@ services:
 
       KSQL_KSQL_CONNECT_URL: "http://kafka-connect:8083"
       KSQL_KSQL_CONNECT_REST_ADVERTISED_HOST_NAME: "ksqldb-server"
-    volumes:
-      - ./ksqldb/state:/tmp/ksqldb-state
+    # volumes:
+    #   - ./ksqldb/state:/tmp/ksqldb-state
 
     depends_on:
       - kafka-0

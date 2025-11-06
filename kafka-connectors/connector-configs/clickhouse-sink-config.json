@@ -1,9 +1,9 @@
 {
-  "name": "clickhouse-sink",
+  "name": "clickhouse-sink1",
   "config": {
     "connector.class": "com.clickhouse.kafka.connect.ClickHouseSinkConnector",
     "tasks.max": "1",
-    "topics": "binance_test,binance_trade_agg_1m,binance_trade_agg_5m",
+    "topics": "binance_test",
     "batch.size": "1000",
     "linger.ms": "5000",   
     "max.retries": "3",
@@ -14,7 +14,7 @@
     "username": "default",
     "password": "root",
 
-    "topic2TableMap": "binance_test:binance_test,binance_trade_agg_1m:binance_trade_agg_1m,binance_trade_agg_5m:binance_trade_agg_5m",
+    "topic2TableMap": "binance_test:binance_test",
     "insert.mode": "insert",
     "auto.create.tables": "true",
     "auto.evolve": "true",
@@ -27,7 +27,7 @@
 
     "key.converter": "org.apache.kafka.connect.json.JsonConverter",
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "key.converter.schemas.enable": "true",
-    "value.converter.schemas.enable": "true"
+    "key.converter.schemas.enable": "false",
+    "value.converter.schemas.enable": "false"
   }
 }
