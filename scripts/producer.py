@@ -13,23 +13,6 @@ BINANCE_WS_URL = os.getenv('BINANCE_WS_URL')
 BOOTSTRAP_SERVERS = os.getenv('BOOTSTRAP_SERVERS')
 TOPIC = os.getenv('TOPIC')
 
-# Schema dict
-SCHEMA = {
-    "type": "struct",
-    "fields": [
-        {"type": "string", "optional": True, "field": "event_type"},
-        {"type": "string", "optional": True, "field": "event_time"},
-        {"type": "string", "optional": True, "field": "symbol"},
-        {"type": "int32", "optional": True, "field": "trade_id"},
-        {"type": "float", "optional": True, "field": "price"},  
-        {"type": "float", "optional": True, "field": "quantity"},  
-        {"type": "string", "optional": True, "field": "trade_time"},
-        {"type": "boolean", "optional": True, "field": "market_maker"},
-        {"type": "boolean", "optional": True, "field": "ignore"}
-    ],
-    "optional": True,
-    "name": "binance.trade"
-}
 
 producer = KafkaProducer(
     bootstrap_servers=BOOTSTRAP_SERVERS.split(","),
