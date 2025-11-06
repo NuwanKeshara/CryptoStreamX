@@ -30,8 +30,6 @@ def make_connect_record(payload):
         return None 
     
     return {
-        # "schema": SCHEMA,
-        # "payload": {
             "event_type": data["e"],
             "event_time": int(data["E"]),
             "symbol": data["s"],
@@ -41,7 +39,6 @@ def make_connect_record(payload):
             "trade_time": int(data["T"]),
             "market_maker": bool(data.get("m", False)),
             "ignore": bool(data.get("M", False))
-        # }
     }
 
 def send_to_kafka(msg):
