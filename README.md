@@ -13,5 +13,3 @@ CryptoStreamX is a fully streaming data pipeline that captures and processes liv
 - Serialization Format: Avro
 - Deployment: Docker
 
-
-### in alpha stage...
