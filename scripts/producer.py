@@ -14,6 +14,7 @@ BOOTSTRAP_SERVERS = os.getenv('BOOTSTRAP_SERVERS')
 TOPIC = os.getenv('TOPIC')
 
 
+
 producer = KafkaProducer(
     bootstrap_servers=BOOTSTRAP_SERVERS.split(","),
     value_serializer=lambda v: json.dumps(v).encode("utf-8"),
@@ -23,6 +24,7 @@ producer = KafkaProducer(
     acks=1,
     max_in_flight_requests_per_connection=5
 )
+
 
 def make_connect_record(payload):
     data = payload.get("data")
@@ -41,11 +43,15 @@ def make_connect_record(payload):
             "ignore": bool(data.get("M", False))
     }
 
+
+
 def send_to_kafka(msg):
     record = make_connect_record(msg)
     if record is None:
         return
     producer.send(TOPIC, value=record)
+
+
 
 def on_message(ws, message):
     try:
@@ -54,14 +60,22 @@ def on_message(ws, message):
     except Exception as e:
         print(f"Failed to process message: {e}")
 
+
+
 def on_error(ws, error):
     print(f"WebSocket error: {error}")
+
+
 
 def on_close(ws, code, msg):
     print(f"WebSocket closed. Code={code}, Msg={msg}")
 
+
+
 def on_open(ws):
     print("Connected to Binance WebSocket")
+
+
 
 def signal_handler(sig, frame):
     print("Shutting down gracefully...")
@@ -69,8 +83,12 @@ def signal_handler(sig, frame):
     producer.close()
     sys.exit(0)
 
+
+
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
+
+
 
 def main():
     ws_app = WebSocketApp(
@@ -81,6 +99,8 @@ def main():
         on_open=on_open
     )
     ws_app.run_forever(ping_interval=15, ping_timeout=10)
+
+
 
 if __name__ == "__main__":
     main()
