@@ -12,6 +12,10 @@ show streams;
 show topics;
 
 
+## check schema registry
+http://localhost:8081/subjects
+
+
 ## Delete Streams
 DROP STREAMS BINANCE_TRADE DELETE TOPIC;
 

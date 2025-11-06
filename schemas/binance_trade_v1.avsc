@@ -1,0 +1,16 @@
+{
+  "type": "record",
+  "name": "BinanceTrade",
+  "namespace": "com.cryptostreamx.avro",
+  "fields": [
+    {"name": "event_type", "type": ["null", "string"], "default": null},
+    {"name": "event_time", "type": ["null", "long"], "default": null},
+    {"name": "symbol", "type": ["null", "string"], "default": null},
+    {"name": "trade_id", "type": ["null", "long"], "default": null},
+    {"name": "price", "type": ["null", "double"], "default": null},
+    {"name": "quantity", "type": ["null", "double"], "default": null},
+    {"name": "trade_time", "type": ["null", "long"], "default": null},
+    {"name": "market_maker", "type": ["null", "boolean"], "default": null},
+    {"name": "ignore", "type": ["null", "boolean"], "default": null}
+  ]
+}

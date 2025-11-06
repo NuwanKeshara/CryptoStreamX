@@ -1,9 +1,10 @@
 {
-  "name": "clickhouse-sink3",
+  "name": "clickhouse-sink",
   "config": {
     "connector.class": "com.clickhouse.kafka.connect.ClickHouseSinkConnector",
     "tasks.max": "1",
-    "topics": "binance_test,binance_trade_agg_1m,binance_trade_agg_5m",
+
+    "topics": "binance_trade,binance_trade_agg_1m,binance_trade_agg_5m",
     "batch.size": "1000",
     "linger.ms": "5000",   
     "max.retries": "3",
@@ -14,7 +15,7 @@
     "username": "default",
     "password": "root",
 
-    "topic2TableMap": "binance_test:binance_test,binance_trade_agg_1m:binance_trade_agg_1m,binance_trade_agg_5m:binance_trade_agg_5m",
+    "topic2TableMap": "binance_trade:binance_trade,binance_trade_agg_1m:binance_trade_agg_1m,binance_trade_agg_5m:binance_trade_agg_5m",
     "insert.mode": "insert",
     "auto.create.tables": "true",
     "auto.evolve": "true",
@@ -26,8 +27,10 @@
     "errors.log.include.messages": "true",
 
     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
-    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
     "key.converter.schemas.enable": "false",
-    "value.converter.schemas.enable": "false"
+    
+    "value.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter.schemas.enable": "true",
+    "value.converter.schema.registry.url": "http://schema-registry:8081"
   }
 }

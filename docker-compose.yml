@@ -27,7 +27,7 @@ services:
       KAFKA_BROKER_ID: 0
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:9093,EXTERNAL://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-0:9093,EXTERNAL://host.docker.internal:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-0:9093,EXTERNAL://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
@@ -45,7 +45,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:9093,EXTERNAL://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:9093,EXTERNAL://host.docker.internal:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:9093,EXTERNAL://localhost:9094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
@@ -63,12 +63,30 @@ services:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:9093,EXTERNAL://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:9093,EXTERNAL://host.docker.internal:9096
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:9093,EXTERNAL://localhost:9096
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.9.4
+    container_name: schema-registry
+    networks:
+      - app-tier
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "kafka-0:9093,kafka-1:9093,kafka-2:9093"
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+      SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: INFO
+      SCHEMA_REGISTRY_COMPATIBILITY_LEVEL: BACKWARD
+    depends_on:
+      - kafka-0
+      - kafka-1
+      - kafka-2
 
 
   ksqldb-server:
@@ -90,13 +108,47 @@ services:
 
       KSQL_KSQL_CONNECT_URL: "http://kafka-connect:8083"
       KSQL_KSQL_CONNECT_REST_ADVERTISED_HOST_NAME: "ksqldb-server"
-    # volumes:
-    #   - ./ksqldb/state:/tmp/ksqldb-state
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
 
     depends_on:
       - kafka-0
       - kafka-1
       - kafka-2
+
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:7.9.4
+    container_name: kafka-connect
+    networks:
+      - app-tier
+    ports:
+      - "8083:8083"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: "kafka-0:9093,kafka-1:9093,kafka-2:9093"
+      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: "cryptostreamx-kafka-cluster"
+      CONNECT_CONFIG_STORAGE_TOPIC: "_connect-configs"
+      CONNECT_OFFSET_STORAGE_TOPIC: "_connect-offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "_connect-status"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "true"
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONNECT_VALUE_CONVERTER: "io.confluent.connect.avro.AvroConverter"
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/etc/kafka-connect/jars"
+    volumes:
+      - ./kafka-connectors/jars:/etc/kafka-connect/jars
+      - ./kafka-connectors/connector-configs:/mnt/configs
+    depends_on:
+      - kafka-0
+      - kafka-1
+      - kafka-2
+      - schema-registry
 
   
   ksqldb-cli:
@@ -146,52 +198,4 @@ services:
       - ./clickhouse/init:/docker-entrypoint-initdb.d
     environment:
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
-      CLICKHOUSE_DB: crypto
-
-  
-  kafka-connect:
-    image: confluentinc/cp-kafka-connect:7.9.4
-    container_name: kafka-connect
-    networks:
-      - app-tier
-    ports:
-      - "8083:8083"
-    environment:
-      CONNECT_BOOTSTRAP_SERVERS: "kafka-0:9093,kafka-1:9093,kafka-2:9093"
-      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
-      CONNECT_REST_PORT: 8083
-      CONNECT_REST_HOST_NAME: 0.0.0.0
-      CONNECT_GROUP_ID: "cryptostreamx-kafka-cluster"
-      CONNECT_CONFIG_STORAGE_TOPIC: "_connect-configs"
-      CONNECT_OFFSET_STORAGE_TOPIC: "_connect-offsets"
-      CONNECT_STATUS_STORAGE_TOPIC: "_connect-status"
-      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
-      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
-      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
-      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
-      CONNECT_PLUGIN_PATH: "/usr/share/java,/etc/kafka-connect/jars"
-    volumes:
-      - ./kafka-connectors/jars:/etc/kafka-connect/jars
-      - ./kafka-connectors/connector-configs:/mnt/configs
-    depends_on:
-      - kafka-0
-      - kafka-1
-      - kafka-2
-
-  # postgres:
-  #   image: 'postgres:16.2-alpine'
-  #   container_name: postgresdb
-  #   environment:
-  #     POSTGRES_USER: root
-  #     POSTGRES_PASSWORD: root
-  #     POSTGRES_DB: crypto
-  #   ports:
-  #     - 5434:5432
-  #   networks:
-  #     - app-tier
-  #   depends_on:
-  #     - kafka-0
-  #     - kafka-1
-  #     - kafka-2
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB}

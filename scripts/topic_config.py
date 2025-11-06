@@ -2,7 +2,8 @@ import logging
 import os
 import sys
 from dotenv import load_dotenv
-from kafka.admin import KafkaAdminClient, NewTopic
+from confluent_kafka.admin import AdminClient, NewTopic
+from confluent_kafka.schema_registry import SchemaRegistryClient, Schema
 
 
 # setup logging
@@ -24,9 +25,6 @@ try:
     BOOTSTRAP_SERVERS = os.getenv('BOOTSTRAP_SERVERS')
     CLIENT_ID = os.getenv('CLIENT_ID')
     TOPIC = os.getenv('TOPIC')
-    TOPIC1 = os.getenv('TOPIC1')
-    TOPIC2 = os.getenv('TOPIC2')
-    TOPIC3 = os.getenv('TOPIC3')
     NUM_PARTITIONS = int(os.getenv('NUM_PARTITIONS'))
     REPLICATION_FACTOR = int(os.getenv('REPLICATION_FACTOR'))
     CLEANUP_POLICY = os.getenv('CLEANUP_POLICY')
@@ -41,47 +39,43 @@ else:
 
 
 try:
-    # initialize a admin client session
-    admin_client = KafkaAdminClient(
-        bootstrap_servers=BOOTSTRAP_SERVERS,
-        client_id=CLIENT_ID
-    )
-
+    # initialize admin client
+    admin_client = AdminClient({
+        'bootstrap.servers': BOOTSTRAP_SERVERS,
+        'client.id': CLIENT_ID
+    })
 except Exception as e:
-    logging.info(f"Error setting up admin client: {e}")
-    print(f"Error setting up admin client: {e}")
-    exit(1)
-
+    logging.error(f"Error setting up admin client: {e}")
+    sys.exit(1)
 else:
     logging.info("Admin client setup successfully")
 
 
-    # define topic settings
-    topic_list = [
-        NewTopic(
-        name=TOPIC,
+
+# define topic settings
+topic_list = [
+    NewTopic(
+        topic=TOPIC,
         num_partitions=NUM_PARTITIONS,
         replication_factor=REPLICATION_FACTOR,
-        topic_configs={
+        config={
             'cleanup.policy': CLEANUP_POLICY,
             'retention.ms': RETENTION_MS
-            }
-        )
-    ]
-
+        }
+    )
+]
 
 
 # create topic
-try:
-    admin_client.create_topics(new_topics=topic_list, validate_only=False)
-    logging.info(f"Topics created successfully on '{BOOTSTRAP_SERVERS}': {topic_list}")
-    print("Topics created successfully")
+futures = admin_client.create_topics(new_topics=topic_list, validate_only=False)
+for topic, future in futures.items():
+    try:
+        future.result()
 
-except Exception as e:
-    logging.info(f"Topic creation failed: {e}")
-    print(f"Topic creation failed: {e}")
+    except Exception as e:
+        logging.error(f"Failed to create topic {topic}: {e}")
+        print(f"Failed to create topic {topic}: {e}")
+else:
 
-finally:
-    admin_client.close()
-    logging.info(f"Closed admin client connection to '{BOOTSTRAP_SERVERS}'")
-    print(f"Closed admin client connection to '{BOOTSTRAP_SERVERS}'")
+    logging.info(f"Topic '{TOPIC}' created successfully on '{BOOTSTRAP_SERVERS}'")
+    print(f"Topic '{TOPIC}' created successfully.")

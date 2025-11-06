@@ -2,7 +2,7 @@
 CREATE DATABASE IF NOT EXISTS crypto;
 USE crypto;
 
-CREATE TABLE binance_test (
+CREATE TABLE binance_trade (
     event_type     String,
     event_time     UInt64, 
     trade_time     UInt64,
@@ -10,8 +10,8 @@ CREATE TABLE binance_test (
     trade_id       UInt64,
     price          Float64,
     quantity       Float64,
-    market_maker   UInt8,
-    ignore         UInt8,
+    market_maker   Bool,
+    ignore         Bool,
     event_time_dt  DateTime64(3, 'UTC') ALIAS toDateTime(event_time / 1000, 'UTC'),
     trade_time_dt  DateTime64(3, 'UTC') ALIAS toDateTime(trade_time / 1000, 'UTC')
 ) 
