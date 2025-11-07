@@ -15,3 +15,19 @@ CryptoStreamX is a fully streaming data pipeline that captures and processes liv
 
 ## Architecture
 ![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/architecture.png?raw=true)
+
+## Report
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page1.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page2.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page3.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page4.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page5.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page6.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page7.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page8.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page9.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page10.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page11.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page12.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page13.png?raw=true)
+![alt text](https://github.com/NuwanKeshara/CryptoStreamX/blob/main/docs/resources/page14.png?raw=true)
