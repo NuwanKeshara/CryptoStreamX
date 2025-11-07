@@ -7,10 +7,11 @@ CryptoStreamX is a fully streaming data pipeline that captures and processes liv
 - Data Ingestion: Apache Kafka
 - Stream Processing: ksqlDB, Kafka Streams
 - Data Integration: Kafka Connect
-- Data Storage: ClickHouse
-- Programming Language: Python
+- Cluster Management: Apache ZooKeeper
 - Schema Management: Schema Registry
 - Serialization Format: Avro
+- Data Storage: ClickHouse
+- Programming Language: Python
 - Deployment: Docker
 
 ## Architecture
